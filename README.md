@@ -18,6 +18,7 @@ For basic example try to look at `/examples` directory.
 ## Defaults
 - **TTL** - 10 seconds
 - **Timeout** - 10 seconds
+- **Delay** - 25 Ms
 
 ## Basic
 ```javascript
@@ -86,15 +87,17 @@ const lock = new Ordo('redis://locahost:6379');
 ## TTL/Timeout
 **TTL** - Time lock will live in Redis  
 **Timeout** - When trying to set lock library reach this timeout Exception will be thrown
+**Delay** - Default delay between lock attempts
 
-You can customize lock acquire with *ttl* and *timeout* options:
+You can customize lock acquire with *ttl*, *timeout* and *delay* options:
 ```javascript
 const Ordo = require('Ordo');
 
 const lock = new Ordo();
 // This lock will have TTL 1 second and will try to be acquired in 1.5 second
-lock.lock('user#1', {ttl: 1, timeout: 1.5}).then(info => {
-    console.log(info.attempts); // Attemps to acuire lock
+// with a 500 ms delay between attempts .
+lock.lock('user#1', {ttl: 1, timeout: 1.5, delay: 500}).then(info => {
+    console.log(info.attempts); // Attempts to acquire lock
     console.log(info.elapsed); // Elapsed time in MS to acquire lock
 });
 ```

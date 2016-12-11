@@ -11,12 +11,10 @@ const redis = require('redis');
 const parse = require('parse-redis-url');
 const error = require('./error');
 
-// This delay will show-off how often we will
-const RETRY_DELAY = 25;
-
 const defaults = {
 	timeout: 10,
-	ttl: 10
+	ttl: 10,
+	delay: 25
 };
 
 /**
@@ -99,6 +97,7 @@ Ordo.prototype.lock = function (key, options, cb) {
 
 	const timeout = (options.timeout ? options.timeout : defaults.timeout) * 1000;
 	const ttl = (options.ttl ? options.ttl : defaults.ttl) * 1000;
+	const delay = (options.delay ? options.delay : defaults.delay);
 	const k = `${this.prefix}${key}`;
 
 	return new Promise((resolve, reject) => {
@@ -165,7 +164,7 @@ Ordo.prototype.lock = function (key, options, cb) {
 
 		// Launching spinlock
 		acquireLock();
-		loop = setInterval(acquireLock, RETRY_DELAY);
+		loop = setInterval(acquireLock, delay);
 	});
 };
 
