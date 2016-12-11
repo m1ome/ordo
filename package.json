@@ -1,0 +1,54 @@
+{
+  "name": "ordo",
+  "version": "1.0.0",
+  "description": "Distributed Redis-based lock spinlock library",
+  "keywords": [
+    "redis",
+    "nodejs",
+    "lock",
+    "distributed",
+    "spinlock"
+  ],
+  "bugs": {
+    "url": "https://github.com/m1ome/ordo/issues"
+  },
+  "license": "MIT",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m1ome/ordo"
+  },
+  "author": {
+    "name": "Pavel Makarenko",
+    "email": "cryfall@gmail.com"
+  },
+  "scripts": {
+    "test": "xo && nyc jasmine",
+		"coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "debug": "^2.3.3",
+    "parse-redis-url": "0.0.2",
+    "redis": "^2.6.3"
+  },
+  "devDependencies": {
+    "jasmine": "^2.5.2",
+    "nyc": "^10.0.0",
+    "xo": "^0.17.1"
+  },
+	"xo": {
+		"ignores": [
+			"spec/**"
+		]
+	},
+	"nyc": {
+		"exclude": [
+			"spec/**.js"
+		],
+		"reporter": [
+			"lcov",
+			"text"
+		]
+	}
+}
