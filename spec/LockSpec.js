@@ -5,8 +5,10 @@ const Lib = require('../src');
 const error = require('../src/error');
 
 describe('Lock', () => {
-	this.lockName = 'testing-lock-name';
-	this.lock = new Lib();
+	beforeEach(() => {
+		this.lockName = 'testing-lock-name';
+		this.lock = new Lib();
+	});
 
 	afterEach((done) => {
 		this.lock
@@ -103,7 +105,7 @@ describe('Lock', () => {
 			});
 
 			lock
-			.lock(this.lockName)
+			.lock('this-lock-will-not-be-set')
 			.catch(err => {
 				expect(err).not.toEqual(null);
 				expect(err).toEqual(new error.RedisError(`Error: Some Redis Error`));
@@ -125,7 +127,7 @@ describe('Lock', () => {
 		});
 
 		it('should lock when we provide custom params timeout/ttl', (done) => {
-			this.lock.lock(this.lockName, {ttl: 0.1, timeout: 10}, (err, data) => {
+			this.lock.lock(this.lockName, {ttl: 0.1, timeout: 0.1}, (err, data) => {
 				expect(data.elapsed).not.toEqual(undefined);
 				expect(data.attempts).not.toEqual(undefined);
 
@@ -158,7 +160,7 @@ describe('Lock', () => {
 				client: client
 			});
 
-			lock.lock(this.lockName, (err, result) => {
+			lock.lock('this-lock-will-not-be-set', (err, result) => {
 				expect(err).not.toEqual(null);
 				expect(err).toEqual(new error.RedisError(`Error: Some Redis Error`));
 				done();
