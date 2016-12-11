@@ -134,7 +134,7 @@ describe('Lock', () => {
 						expect(err).toEqual(new error.ReleaseError('Lock release error, there is no such lock'));
 						done();
 					});
-				}, 150);
+				}, 450);
 			});
 		});
 
