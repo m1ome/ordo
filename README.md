@@ -1,6 +1,8 @@
 # Ordo - Redis distributed lock system
 > Ordo - is a latin word Queue, that's what this library looks like. Concurrent access!
 
+[![Build Status](https://travis-ci.org/m1ome/ordo.svg?branch=master)](https://travis-ci.org/m1ome/ordo)
+
 # Installation
 Use npm to install:
 ```bash
