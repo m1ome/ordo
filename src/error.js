@@ -2,28 +2,21 @@
 
 const util = require('util');
 
-function RedisError(message) {
-	Error.captureStackTrace(this, RedisError);
-	this.name = 'RedisError';
-	this.message = message;
-}
+var errors = module.exports = {};
 
-function AcquireError(message) {
-	Error.captureStackTrace(this, AcquireError);
-	this.name = 'AcquireError';
-	this.message = message;
-}
+const names = ['RedisError', 'AcquireError', 'ReleaseError'];
+names.forEach(name => {
+	const err = function (message) {
+		Error.captureStackTrace(this, this.constructor);
+		this.name = name;
 
-function ReleaseError(message) {
-	Error.captureStackTrace(this, ReleaseError);
-	this.name = 'ReleaseError';
-	this.message = message;
-}
+		if (message instanceof Error) {
+			this.message = message.message;
+		} else {
+			this.message = message;
+		}
+	};
+	util.inherits(err, Error);
 
-util.inherits(AcquireError, Error);
-util.inherits(RedisError, Error);
-util.inherits(ReleaseError, Error);
-
-exports.AcquireError = AcquireError;
-exports.RedisError = RedisError;
-exports.ReleaseError = ReleaseError;
+	errors[name] = err;
+});

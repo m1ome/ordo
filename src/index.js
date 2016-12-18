@@ -100,7 +100,7 @@ Ordo.prototype.lock = function (key, options, cb) {
 	const delay = (options.delay ? options.delay : defaults.delay);
 	const k = `${this.prefix}${key}`;
 
-	return new Promise((resolve, reject) => {
+	const lock = new Promise((resolve, reject) => {
 		var loop = null;
 		var attempts = 0;
 		const start = process.hrtime();
@@ -117,12 +117,7 @@ Ordo.prototype.lock = function (key, options, cb) {
 					clearInterval(loop);
 				}
 
-				const err = new error.AcquireError('Error while obtaining lock');
-				if (cb !== undefined) {
-					return cb(err);
-				}
-
-				return reject(err);
+				return reject(new error.AcquireError('Error while obtaining lock'));
 			}
 
 			this.client.set(k, 1, 'NX', 'PX', ttl + ttl / 2, (err, result) => {
@@ -131,10 +126,6 @@ Ordo.prototype.lock = function (key, options, cb) {
 				if (err) {
 					if (loop !== null) {
 						clearInterval(loop);
-					}
-
-					if (cb !== undefined) {
-						return cb(new error.RedisError(err));
 					}
 
 					return reject(new error.RedisError(err));
@@ -147,17 +138,12 @@ Ordo.prototype.lock = function (key, options, cb) {
 						clearInterval(loop);
 					}
 
-					if (cb !== undefined) {
-						return cb(null, {
-							elapsed: elapsed,
-							attempts: attempts
-						});
-					}
-
-					return resolve({
+					const info = {
 						elapsed: elapsed,
 						attempts: attempts
-					});
+					};
+
+					return resolve(info);
 				}
 			});
 		};
@@ -165,6 +151,17 @@ Ordo.prototype.lock = function (key, options, cb) {
 		// Launching spinlock
 		acquireLock();
 		loop = setInterval(acquireLock, delay);
+	});
+
+	if (cb === undefined) {
+		return lock;
+	}
+
+	lock.then(result => {
+		cb(null, result);
+	})
+	.catch(err => {
+		cb(err);
 	});
 };
 
@@ -181,34 +178,31 @@ Ordo.prototype.release = function (key, cb) {
 	}
 
 	const k = `${this.prefix}${key}`;
-	return new Promise((resolve, reject) => {
+	const release = new Promise((resolve, reject) => {
 		this.client.del(k, (err, data) => {
 			if (err) {
-				if (cb !== undefined) {
-					return cb(new error.RedisError(err));
-				}
-
 				return reject(new error.RedisError(err));
 			}
 
 			if (parseInt(data, 10) < 1) {
-				const err = new error.ReleaseError(`Lock release error, there is no such lock`);
-
-				if (cb !== undefined) {
-					return cb(err);
-				}
-
-				return reject(err);
+				return reject(new error.ReleaseError(`Lock release error, there is no such lock`));
 			}
 
 			debug(`[LOCK:RELEASE] releasing "${k}" lock`);
 
-			if (cb !== undefined) {
-				return cb(null, null);
-			}
-
 			return resolve(null);
 		});
+	});
+
+	if (cb === undefined) {
+		return release;
+	}
+
+	release.then(result => {
+		return cb(null, result);
+	})
+	.catch(err => {
+		return cb(err);
 	});
 };
 

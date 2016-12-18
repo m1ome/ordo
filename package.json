@@ -26,7 +26,7 @@
     "email": "cryfall@gmail.com"
   },
   "scripts": {
-    "test": "xo && nyc jasmine",
+    "test": "xo && nyc ava",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "dependencies": {
@@ -36,18 +36,15 @@
     "redis": "^2.6.3"
   },
   "devDependencies": {
-    "jasmine": "^2.5.2",
+    "ava": "^0.17.0",
+    "chai": "^3.5.0",
     "nyc": "^10.0.0",
+    "sinon": "^1.17.6",
     "xo": "^0.17.1"
-  },
-  "xo": {
-    "ignores": [
-      "spec/**"
-    ]
   },
   "nyc": {
     "exclude": [
-      "spec/**.js"
+      "test/**.js"
     ],
     "reporter": [
       "lcov",
