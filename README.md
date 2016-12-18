@@ -2,6 +2,7 @@
 > Ordo - is a latin word Queue, that's what this library looks like. Concurrent access!
 
 [![Build Status](https://travis-ci.org/m1ome/ordo.svg?branch=master)](https://travis-ci.org/m1ome/ordo)
+[![dependencies Status](https://david-dm.org/m1ome/ordo/status.svg)](https://david-dm.org/m1ome/ordo)
 [![Coverage Status](https://coveralls.io/repos/github/m1ome/ordo/badge.svg)](https://coveralls.io/github/m1ome/ordo)
 [![Code Climate](https://codeclimate.com/github/m1ome/ordo/badges/gpa.svg)](https://codeclimate.com/github/m1ome/ordo)
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
