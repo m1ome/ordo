@@ -1,6 +1,6 @@
 {
   "name": "ordo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Distributed Redis-based lock spinlock library",
   "keywords": [
     "redis",
