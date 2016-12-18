@@ -38,36 +38,27 @@ test('throws on wrong key', t => {
 	t.is(error.message, 'You should provide "key" as a string');
 });
 
-// 	describe('Promises', () => {
-// 		it('should release lock successfully', (done) => {
-// 			this.lock.release(this.lockName).then((res) => {
-// 				expect(res).toEqual(null);
-// 				done();
-// 			});
-// 		});
-//
-// 		it('should throw on unknown lock', (done) => {
-// 			this.lock.release('unknown_lock').catch(err => {
-// 				expect(err).toEqual(new error.ReleaseError('Lock release error, there is no such lock'));
-// 				done();
-// 			});
-// 		});
-//
-// 		it('should throw on Redis error', (done) => {
-// 			const client = new redis.createClient();
-//
-// 			spyOn(client, 'del').and.callFake(function(key, cb) {
-// 				return cb(new Error(`Some Redis Error`));
-// 			});
-//
-// 			const lock = new Lib({
-// 				client: client
-// 			});
-//
-// 			lock.release(this.lockName).catch(err => {
-// 				expect(err).not.toEqual(null);
-// 				expect(err).toEqual(new error.RedisError(`Error: Some Redis Error`));
-// 				done();
-// 			});
-// 		});
-// 	});
+test('should release lock successfully', async t => {
+	const result = await t.context.lock.release(t.context.lockName);
+	t.is(result, null);
+});
+
+test('should throw on unknown lock', async t => {
+	const err = await t.throws(t.context.lock.release('unknown_lock'));
+
+	t.is(err.message, `Lock release error, there is no such lock`);
+	t.true(err instanceof error.ReleaseError);
+});
+
+test('should throw on Redis error', async t => {
+	const client = new redis.createClient();
+
+	const stub = sinon.stub(client, 'del').yields(new Error(`Some Redis Error`));
+	const lock = new Lib({
+		client: client
+	});
+
+	const err = await t.throws(lock.release(t.context.lockName));
+	t.is(err.message, `Some Redis Error`);
+	t.true(err instanceof error.RedisError);
+});
