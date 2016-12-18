@@ -27,7 +27,7 @@
   },
   "scripts": {
     "test": "xo && nyc ava",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
