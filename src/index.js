@@ -45,6 +45,21 @@ function Ordo(options) {
 	const database = options.database || null;
 	const prefix = options.prefix || null;
 
+	this._setClient(client, host, port, options);
+	this._setPassword(password);
+	this._setDatabase(database);
+
+	this.prefix = prefix || 'ordo:lock:';
+}
+
+/**
+ * Setting client
+ * @param {Object} client  Redis client
+ * @param {String} host    Host if we connecting to some non-default host
+ * @param {string} port    Port if we connecting to non-default port
+ * @param {Object} options Additional Redis parameters
+ */
+Ordo.prototype._setClient = function (client, host, port, options) {
 	if (client) {
 		this.client = client;
 	} else if (!port && !host) {
@@ -53,7 +68,13 @@ function Ordo(options) {
 		options.prefix = null;
 		this.client = new redis.createClient(port, host, options);
 	}
+};
 
+/**
+ * Adding auth support to Redis client
+ * @param {String} password Redis password
+ */
+Ordo.prototype._setPassword = function (password) {
 	if (password) {
 		this.client.auth(password, err => {
 			if (err) {
@@ -61,7 +82,13 @@ function Ordo(options) {
 			}
 		});
 	}
+};
 
+/**
+ * Selecting custom database
+ * @param {String} database Database ID
+ */
+Ordo.prototype._setDatabase = function (database) {
 	if (database) {
 		this.client.select(database, err => {
 			if (err) {
@@ -69,9 +96,7 @@ function Ordo(options) {
 			}
 		});
 	}
-
-	this.prefix = prefix || 'ordo:lock:';
-}
+};
 
 /**
 * Lock obtaining function.
@@ -100,7 +125,36 @@ Ordo.prototype.lock = function (key, options, cb) {
 	const delay = (options.delay ? options.delay : defaults.delay);
 	const k = `${this.prefix}${key}`;
 
-	const lock = new Promise((resolve, reject) => {
+	const lock = this._lock(k, {
+		timeout: timeout,
+		ttl: ttl,
+		delay: delay
+	});
+
+	if (cb === undefined) {
+		return lock;
+	}
+
+	lock.then(result => {
+		cb(null, result);
+	}).catch(err => {
+		cb(err);
+	});
+};
+
+/**
+ * Lock function
+ *
+ * @param  {String} k       Key of lock
+ * @param  {Object} options timeout, ttl and delay options
+ * @return {Promise}
+ */
+Ordo.prototype._lock = function (k, options) {
+	const timeout = options.timeout;
+	const ttl = options.ttl;
+	const delay = options.delay;
+
+	return new Promise((resolve, reject) => {
 		var loop = null;
 		var attempts = 0;
 		const start = process.hrtime();
@@ -151,17 +205,6 @@ Ordo.prototype.lock = function (key, options, cb) {
 		// Launching spinlock
 		acquireLock();
 		loop = setInterval(acquireLock, delay);
-	});
-
-	if (cb === undefined) {
-		return lock;
-	}
-
-	lock.then(result => {
-		cb(null, result);
-	})
-	.catch(err => {
-		cb(err);
 	});
 };
 
